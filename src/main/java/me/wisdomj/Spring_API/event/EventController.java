@@ -1,7 +1,7 @@
 package me.wisdomj.Spring_API.event;
 
 
-
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +21,13 @@ import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.metho
 public class EventController {
 
     private final EventRepository eventRepository;
+    private final ModelMapper modelMapper;
 
-    public EventController(EventRepository eventRepository) {
+
+
+    public EventController(EventRepository eventRepository, ModelMapper modelMapper) {
         this.eventRepository = eventRepository;
+        this.modelMapper = modelMapper;
     }
 
     //ResponseEntity를 사용하는 이유 : 응답코드, 헤더, 본문 다 다루기 편한 API
@@ -37,11 +41,17 @@ public class EventController {
     // 추가 해줬기 때문에 더이상 methodOn 필요 x
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody Event event) {
+    public ResponseEntity createEvent(@RequestBody EventDto eventDto) {
+        // 원래대로라면 다음과 같이 코딩해줘야 하는데 ModelMapping 쓰면 됨
+        // Event event = Event.builder()
+        //        .name(eventDto.getName()) ...
+        //       .build();
+
+        //EventDto에 있는 걸 Event class의 타입의 인스턴스로 만들어달라.
+        Event event = modelMapper.map(eventDto, Event.class);
+
         Event newEvent = this.eventRepository.save(event);
-
         URI createUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-
         return ResponseEntity.created(createUri).body(event);
     }
 }
