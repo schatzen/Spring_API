@@ -2,6 +2,7 @@ package me.wisdomj.Spring_API.event;
 
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.Errors;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.linkTo;
@@ -22,7 +24,6 @@ public class EventController {
 
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
-
 
 
     public EventController(EventRepository eventRepository, ModelMapper modelMapper) {
@@ -41,11 +42,19 @@ public class EventController {
     // 추가 해줬기 때문에 더이상 methodOn 필요 x
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody EventDto eventDto) {
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto, Errors errors) {
         // 원래대로라면 다음과 같이 코딩해줘야 하는데 ModelMapping 쓰면 됨
         // Event event = Event.builder()
         //        .name(eventDto.getName()) ...
         //       .build();
+
+        //@Valid를 붙여주면은 해당 Entity(여기선 eventDto)의 어노테이션들을 확인해서
+        // 검증한다. 그리고 Validation을 사용한 객체 바로 오른쪽에 있는
+        // Errors 라는 객체에다가 error들을 넣어준다.
+
+        if (errors.hasErrors()) {
+            return ResponseEntity.badRequest().build();
+        }
 
         //EventDto에 있는 걸 Event class의 타입의 인스턴스로 만들어달라.
         Event event = modelMapper.map(eventDto, Event.class);

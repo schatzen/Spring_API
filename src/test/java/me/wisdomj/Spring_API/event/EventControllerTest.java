@@ -99,7 +99,10 @@ public class EventControllerTest {
 
     @Test
     public void createBad_request() throws Exception {
-        Event event = Event.builder()
+
+        // 원하지 않는 타입의 데이터들이 보내졌을 때때
+
+       Event event = Event.builder()
                 .id(100)
                 .name("Spring")
                 .description("REST_API Dvelopment with Spring")
@@ -127,6 +130,19 @@ public class EventControllerTest {
 
         ;
 
+    }
+
+    @Test
+    public void createEvent_Bad_Request_Empty_Input() throws Exception {
+        EventDto eventDto = EventDto.builder().build();
+
+        // 우리가 원하는 filed만 전송하간하는데, 값들이 비어있다.
+        // 하지만 201 코드가 떨어진다 -> 우리가 해야할 것
+
+        this.mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(eventDto)))
+                .andExpect(status().isBadRequest());
     }
 
 
