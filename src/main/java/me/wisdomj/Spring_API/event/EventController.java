@@ -20,6 +20,12 @@ import static org.springframework.hateoas.server.mvc.ControllerLinkBuilder.metho
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_VALUE)
 public class EventController {
 
+    private final EventRepository eventRepository;
+
+    public EventController(EventRepository eventRepository) {
+        this.eventRepository = eventRepository;
+    }
+
     //ResponseEntity를 사용하는 이유 : 응답코드, 헤더, 본문 다 다루기 편한 API
     // created로 보낼때는 URI가 필요
 
@@ -32,8 +38,10 @@ public class EventController {
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody Event event) {
-        URI createUri = linkTo(EventController.class).slash("{id}").toUri();
-        event.setId(10);
+        Event newEvent = this.eventRepository.save(event);
+
+        URI createUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+
         return ResponseEntity.created(createUri).body(event);
     }
 }

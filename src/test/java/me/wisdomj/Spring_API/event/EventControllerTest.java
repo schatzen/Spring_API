@@ -3,8 +3,10 @@ package me.wisdomj.Spring_API.event;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,6 +33,10 @@ public class EventControllerTest {
     ObjectMapper objectMapper;
     // 본문 요청 코드를 Json코드로 변환시키기 위해해
 
+    @MockBean
+    EventRepository eventRepository;
+    // JPA EventReposotpry도 테스트에서 돌릴려면 따로 MockBean 통하여 주입해야한다.
+
    @Test
     public void createEvent() throws Exception {
         Event event = Event.builder()
@@ -45,6 +51,11 @@ public class EventControllerTest {
                 .limitOfEnrollment(100)
                 .location("강남역 D@ 스타텁 팩토리")
                 .build();
+
+        //Mockito 를 안해주면 event에 저장된 값은 테스트 용에서 null로 반환되기때문에
+        // 데이터가 저장된 event를 불러오려면 다음 코딩을 추가해야한다.
+        event.setId(10);
+        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         //http post요청 본냄 해당 주소로
         mockMvc.perform(post("/api/events")
