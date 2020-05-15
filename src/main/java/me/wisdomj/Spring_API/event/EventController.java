@@ -33,7 +33,7 @@ public class EventController {
     //ResponseEntity를 사용하는 이유 : 응답코드, 헤더, 본문 다 다루기 편한 API
     // created로 보낼때는 URI가 필요
 
-    // Location URL 만들기 : linkTo 와 methodOn은 hATEOS가 제공
+    // Location URL 만들기 : linkTo 와 methodOn은 HATEOS가 제공
     // url이 EventController에 있지 않으므로 methodOn 추가
     //URI createUri = linkTo(methodOn(EventController.class).createEvent(null)).slash("{id}").toUri();
 
@@ -49,9 +49,9 @@ public class EventController {
 
         //EventDto에 있는 걸 Event class의 타입의 인스턴스로 만들어달라.
         Event event = modelMapper.map(eventDto, Event.class);
-
         Event newEvent = this.eventRepository.save(event);
         URI createUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
+
         return ResponseEntity.created(createUri).body(event);
     }
 }

@@ -44,8 +44,7 @@ public class EventControllerTest {
 
     @Test
     public void createEvent() throws Exception {
-        Event event = Event.builder()
-                .id(100)
+        EventDto event = EventDto.builder()
                 .name("Spring")
                 .description("REST_API Dvelopment with Spring")
                 .beginEnrollmentDateTime(LocalDateTime.of(2020, 05, 15, 11, 40))
@@ -56,9 +55,6 @@ public class EventControllerTest {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("강남역 D@ 스타텁 팩토리")
-                .free(true)
-                .offline(false)
-                .eventStatus(EventStatus.PUBLISHED)
                 .build();
 
 
@@ -86,7 +82,7 @@ public class EventControllerTest {
                 //java.lang.AssertionError: JSON path "free"
                 //Expected: not <true>
                 //     but: was <true>
-        .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
 
         ;
 
@@ -99,6 +95,38 @@ public class EventControllerTest {
         //Actual   :404
         //<Click to see difference>
         // 와 같은 코드 확인가능능
+    }
+
+    @Test
+    public void createBad_request() throws Exception {
+        Event event = Event.builder()
+                .id(100)
+                .name("Spring")
+                .description("REST_API Dvelopment with Spring")
+                .beginEnrollmentDateTime(LocalDateTime.of(2020, 05, 15, 11, 40))
+                .closeEnrollmentDateTime(LocalDateTime.of(2020, 05, 15, 11, 40))
+                .beginEventDateTime(LocalDateTime.of(2020, 05, 15, 11, 40))
+                .endEventDateTime(LocalDateTime.of(2020, 05, 15, 11, 40))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("강남역 D@ 스타텁 팩토리")
+                .free(true) //unknown property
+                .offline(false) //unknown property
+                .eventStatus(EventStatus.PUBLISHED)//unknown property
+                .build();
+
+
+        mockMvc.perform(post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaTypes.HAL_JSON_VALUE)
+                .content(objectMapper.writeValueAsString(event))
+        )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+
+        ;
+
     }
 
 
